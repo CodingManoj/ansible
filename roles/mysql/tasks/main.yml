@@ -38,6 +38,12 @@
       ansible.builtin.set_fact:
         DEFAULT_PASS: "{{mysql_log['content'] | b64decode | regex_findall('.*temporary password.*') | join(' ') |split(' ') | last }}"
 
+    - name: Change MySQL
+      ansible.builtin.shell: echo "ALTER USER 'root'@'localhost' IDENTIFIED BY '{{DB_PASSWORD}}';" | mysql --connect-expired-password -uroot -p"{{DEFAULT_PASS}}"
+
+- name: Check Validate plugin exists
+  ansible.builtin.shell: echo "uninstall plugin validate_password;" | mysql -uroot -p{{DB_PASSWORD}}
+  ignore_errors: yes
 
 - name: Download and extracting MySQL 
   ansible.builtin.include_role:
